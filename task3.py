@@ -1,23 +1,57 @@
-# import the necessary libraries.
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import from_json, col, avg, sum, window, to_timestamp
+from pyspark.sql.types import StructType, StructField, StringType, DoubleType, TimestampType
 
-# Create a Spark session
+# --- CONFIGURATION ---
+HOST = "localhost"
+PORT = 9999
+CHECKPOINT_BASE_DIR = "tmp/checkpoints_task3"
 
-# Define the schema for incoming JSON data
+# Step 1: Create Spark session
+spark = SparkSession.builder \
+    .appName("RideSharingTask3") \
+    .getOrCreate()
 
-# Read streaming data from socket
+# Step 2: Define schema
+schema = StructType([
+    StructField("trip_id", StringType(), True),
+    StructField("driver_id", StringType(), True),
+    StructField("distance_km", DoubleType(), True),
+    StructField("fare_amount", DoubleType(), True),
+    StructField("timestamp", StringType(), True)
+])
 
-# Parse JSON data into columns using the defined schema
+# Step 3: Read streaming data
+raw_stream = spark.readStream \
+    .format("socket") \
+    .option("host", HOST) \
+    .option("port", PORT) \
+    .load()
 
-# Convert timestamp column to TimestampType and add a watermark
+# Step 4: Parse JSON
+parsed_stream = raw_stream.select(from_json(col("value"), schema).alias("data")).select("data.*")
 
-# Perform windowed aggregation: sum of fare_amount over a 5-minute window sliding by 1 minute
+# Step 5: Convert timestamp and add watermark
+parsed_stream = parsed_stream.withColumn("event_time", to_timestamp("timestamp"))
 
-# Extract window start and end times as separate columns
+# Step 6: Windowed aggregation (5-min window, 1-min slide)
+windowed_stream = parsed_stream.withWatermark("event_time", "1 minute") \
+    .groupBy(window("event_time", "5 minutes", "1 minute")) \
+    .agg(sum("fare_amount").alias("sum_fare")) \
+    .select(
+        col("window.start").alias("window_start"),
+        col("window.end").alias("window_end"),
+        col("sum_fare")
+    )
 
-# Define a function to write each batch to a CSV file with column names
+# Step 7: Write each batch to CSV
+def write_window_to_csv(batch_df, batch_id):
+    batch_df.coalesce(1).write.mode("append").csv(f"outputs/task3", header=True)
 
-    # Save the batch DataFrame as a CSV file with headers included
-    
-# Use foreachBatch to apply the function to each micro-batch
+query = windowed_stream.writeStream \
+    .outputMode("append") \
+    .foreachBatch(write_window_to_csv) \
+    .option("checkpointLocation", CHECKPOINT_BASE_DIR) \
+    .start()
 
 query.awaitTermination()
