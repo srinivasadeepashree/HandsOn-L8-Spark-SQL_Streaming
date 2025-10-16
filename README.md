@@ -96,6 +96,12 @@ By the end of this assignment, you should be able to:
 3. Parse the JSON payload into columns.
 4. Print the parsed data to the console (using .writeStream.format("console")).
 
+## **Sample output:**
+
+|| |  | | |
+| ------- | ------ | ------- | ------- | ------ |
+| 4ea7dad4-84af-451a-a54e-62785e4ce953     | 95   | 31.81    |  87.37  | 2025-10-16 02:44:53  |
+
 ---
 
 ## **Task 2: Real-Time Aggregations (Driver-Level)**
@@ -112,6 +118,25 @@ By the end of this assignment, you should be able to:
 4. AVG(distance_km) as avg_distance
 5. Store the result in csv
 
+## **Sample output:**
+| driver_id | total_fare | avg_distance |
+|-----------|------------|--------------|
+| 15        | 118.2      | 2.27         |
+| 73        | 42.48      | 29.94        |
+| 28        | 144.21     | 7.07         |
+| 85        | 105.21     | 42.8         |
+| 35        | 146.82     | 37.49        |
+| 82        | 142.84     | 25.73        |
+| 86        | 22.35      | 16.51        |
+| 1         | 135.17     | 6.1          |
+| 20        | 172.54     | 38.23        |
+| 56        | 151.02     | 10.62        |
+| 36        | 64.3       | 34.57        |
+| 10        | 55.31      | 21.63        |
+| 4         | 21.97      | 4.92         |
+| 2         | 96.2       | 31.1         |
+| 50        | 10.83      | 33.83        |
+
 ---
 
 ## **Task 3: Windowed Time-Based Analytics**
@@ -125,15 +150,20 @@ By the end of this assignment, you should be able to:
 2. Use Spark’s window function to aggregate over a 5-minute window, sliding by 1 minute, for the sum of fare_amount.
 3. Output the windowed results to csv.
 
+## **Sample output:**
+|window_start| window_end| sum_fare |
+| ------- | ------ | ------- |
+| 2025-10-16T03:03:00.000Z | 2025-10-16T03:08:00.000Z   | 10210.609999999999    |
+
 ---
 
 ## 📬 Submission Checklist
 
-- [ ] Python scripts 
-- [ ] Output files in the `outputs/` directory  
-- [ ] Completed `README.md`  
-- [ ] Commit everything to GitHub Classroom  
-- [ ] Submit your GitHub repo link on canvas
+- [x] Python scripts 
+- [x] Output files in the `outputs/` directory  
+- [x] Completed `README.md`  
+- [x] Commit everything to GitHub Classroom  
+- [x] Submit your GitHub repo link on canvas
 
 ---
 
